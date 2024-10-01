@@ -100,13 +100,13 @@ export const readCommentsByPostID = async (req, res) => {
 
             const populatedComment = await com.populate('userID')
 
-            const { _id, createdAt, updatedAt, comment, userID, postID } = populatedComment
+            const { _id, updatedAt, comment, userID } = populatedComment
 
-            const { username, email } = userID
+            const { username } = userID
 
-            const userInfo = { userID: userID._id, username, email }
+            const userInfo = { userID: userID._id, username }
 
-            const modifiedComment = { commentID: _id, comment, userInfo, postID, createdAt, updatedAt }
+            const modifiedComment = { commentID: _id, comment, userInfo, updatedAt }
 
             return modifiedComment
         }))
