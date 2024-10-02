@@ -9,27 +9,20 @@ import PostRoute from './routes/post.js'
 import CommentRoute from './routes/comment.js'
 import http from 'http'
 import { Server } from "socket.io"
+import socketEvents from './socketEvents.js'
 
 const app = express()
 
 // socket connection
 const server = http.createServer(app)
-const io = new Server(server, {
+export const io = new Server(server, {
     cors: {
         origin: "http://localhost:5173",
         credentials: true
     }
 })
 
-io.on("connection", (socket) => {
-
-    socket.on("blogApp", (payload) => {
-
-        io.emit("blogApp", payload)
-
-    })
-})
-
+socketEvents(io)
 
 //middlewares
 dotenv.config()

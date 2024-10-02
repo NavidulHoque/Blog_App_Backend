@@ -1,7 +1,7 @@
 import { Comment } from './../models/Comment.js';
+import { io } from '../index.js';
 
 export const createComment = async (req, res) => {
-    console.log(req.body.userID)
 
     try {
 
@@ -11,10 +11,21 @@ export const createComment = async (req, res) => {
             userID: req.body.userID
         })
 
-        await newComment.save()
+        const savedComment = await newComment.save();
+
+        const populatedComment = await savedComment.populate('userID');
+
+        const { _id, updatedAt, comment, userID } = populatedComment;
+        
+        const { username } = userID;
+
+        const userInfo = { userID: userID._id, username }
+
+        const commentData = { commentID: _id, comment, userInfo, updatedAt };
 
         return res.json({
-            status: true
+            status: true,
+            commentData
         })
     }
 
@@ -42,13 +53,13 @@ export const updateComment = async (req, res) => {
 
         const populatedComment = await updatedComment.populate('userID')
 
-        const { _id, createdAt, updatedAt, comment, userID, postID } = populatedComment
+        const { _id, updatedAt, comment, userID } = populatedComment
 
-        const { username, email } = userID
+        const { username } = userID
 
-        const userInfo = { userID: userID._id, username, email }
+        const userInfo = { userID: userID._id, username }
 
-        const commentData = { commentID: _id, comment, userInfo, postID, createdAt, updatedAt }
+        const commentData = { commentID: _id, comment, userInfo, updatedAt }
 
         return res.json({
             status: true,
@@ -75,6 +86,7 @@ export const deleteComment = async (req, res) => {
 
         return res.json({
             status: true,
+            commentID: id,
             message: "Comment successfully deleted!"
         })
     }
