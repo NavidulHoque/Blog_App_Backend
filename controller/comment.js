@@ -1,5 +1,4 @@
 import { Comment } from './../models/Comment.js';
-import { io } from '../index.js';
 
 export const createComment = async (req, res) => {
 
@@ -59,11 +58,11 @@ export const updateComment = async (req, res) => {
 
         const userInfo = { userID: userID._id, username }
 
-        const commentData = { commentID: _id, comment, userInfo, updatedAt }
+        const updatedCommentData = { commentID: _id, comment, userInfo, updatedAt }
 
         return res.json({
             status: true,
-            commentData
+            updatedCommentData
         })
 
     }
@@ -86,8 +85,7 @@ export const deleteComment = async (req, res) => {
 
         return res.json({
             status: true,
-            commentID: id,
-            message: "Comment successfully deleted!"
+            commentID: id
         })
     }
 
