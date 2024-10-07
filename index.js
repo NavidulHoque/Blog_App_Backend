@@ -20,24 +20,25 @@ const app = express()
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename)
 
+
+//middlewares
+dotenv.config()
+
 // socket connection
 const server = createServer(app)
 export const io = new Server(server, {
     cors: {
-        origin: "http://localhost:5173",
+        origin: process.env.FRONTEND_URL,
         credentials: true
     }
 })
 
 socketEvents(io)
 
-
-//middlewares
-dotenv.config()
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: process.env.FRONTEND_URL,
     credentials: true,
 }))
 

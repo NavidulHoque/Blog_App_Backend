@@ -73,7 +73,7 @@ export const loginAnUser = async (req, res) => {
             maxAge: 3 * 24 * 60 * 60 * 1000
         }).json({ 
             status: true, 
-            loggedInUser 
+            loggedInUser
         })
 
     }
