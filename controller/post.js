@@ -1,5 +1,6 @@
 import { Post } from './../models/Post.js';
 import { Comment } from './../models/Comment.js';
+import { io } from '../index.js';
 
 export const createPost = async (req, res) => {
 
@@ -8,7 +9,7 @@ export const createPost = async (req, res) => {
         const newPost = new Post({
             title: req.body.title,
             description: req.body.description,
-            photoURL: req.body.photoURL,
+            photo: req.body.photo,
             categories: req.body.categories,
             userID: req.body.userID
         })
@@ -17,16 +18,19 @@ export const createPost = async (req, res) => {
 
         const populatedPost = await savedPost.populate('userID')
 
-        const { _id, createdAt, updatedAt, title, description, photoURL, categories, userID } = populatedPost
+        const { _id, title, description, photo, userID, updatedAt } = populatedPost
 
-        const { username, email } = userID
+        const { username } = userID
 
-        const userInfo = { userID: userID._id, username, email }
+        const userInfo = { username }
 
-        const post = { postID: _id, title, description, photoURL, categories, userInfo, createdAt, updatedAt }
+        const post = { postID: _id, title, description, photo, userInfo, updatedAt }
+
+        io.emit('newPost', post)
 
         return res.json({
             status: true,
+            message: "Post created successfully",
             post
         })
     }
@@ -36,7 +40,7 @@ export const createPost = async (req, res) => {
 
         return res.json({
             status: false,
-            message: "Something went wrong, please try again"
+            message: "Something went wrong, please try again",
         })
     }
 }
@@ -51,24 +55,27 @@ export const updatePost = async (req, res) => {
 
             title: req.body.title,
             description: req.body.description,
-            photoURL: req.body.photoURL,
+            photo: req.body.photo,
             categories: req.body.categories
 
         }, { new: true })
 
         const populatedPost = await updatedPost.populate('userID')
 
-        const { _id, createdAt, updatedAt, title, description, photoURL, categories, userID } = populatedPost
+        const { _id, updatedAt, title, description, photo, categories, userID } = populatedPost
 
-        const { username, email } = userID
+        const { username } = userID
 
-        const userInfo = { userID: userID._id, username, email }
+        const userInfo = { userID: userID._id, username }
 
-        const post = { postID: _id, title, description, photoURL, categories, userInfo, createdAt, updatedAt }
+        const post = { postID: _id, title, description, photo, categories, userInfo, updatedAt }
+
+        io.emit('updatePost', post)
 
         return res.json({
             status: true,
-            post
+            post,
+            message: "Post updated"
         })
 
     }
@@ -87,11 +94,16 @@ export const deletePost = async (req, res) => {
     const { id } = req.params
 
     try {
-        await Post.findByIdAndDelete(id)
+
+        const deletedPost = await Post.findByIdAndDelete(id)
+
         await Comment.deleteMany({ postID: id })
+
+        io.emit('deletePost', deletedPost)
 
         return res.json({
             status: true,
+            photo: deletedPost.photo,
             message: "Post successfully deleted!"
         })
     }
@@ -115,19 +127,18 @@ export const readPostByID = async (req, res) => {
 
         const populatedPost = await readPost.populate('userID')
 
-        const { _id, createdAt, updatedAt, title, description, photoURL, categories, userID } = populatedPost
+        const { _id, updatedAt, title, description, photo, categories, userID } = populatedPost
 
-        const { username, email } = userID
+        const { username } = userID
 
-        const userInfo = { userID: userID._id, username, email }
+        const userInfo = { userID: userID._id, username }
 
-        const post = { postID: _id, title, description, photoURL, categories, userInfo, createdAt, updatedAt }
+        const post = { postID: _id, title, description, photo, categories, userInfo, updatedAt }
 
         return res.json({
             status: true,
             post
         })
-
     }
 
     catch (error) {
@@ -153,8 +164,7 @@ export const readPostsOfLoggedInUser = async (req, res) => {
 
         if (posts.length === 0) {
             return res.json({
-                status: false,
-                message: "No posts found"
+                status: false
             })
         }
 
@@ -162,13 +172,13 @@ export const readPostsOfLoggedInUser = async (req, res) => {
 
             const populatedPost = await post.populate('userID')
 
-            const { _id, createdAt, updatedAt, title, description, photoURL, categories, userID } = populatedPost
+            const { _id, updatedAt, title, description, photo, userID } = populatedPost
 
-            const { username, email } = userID
+            const { username } = userID
 
-            const userInfo = { userID: userID._id, username, email }
+            const userInfo = { username }
 
-            const modifiedPost = { postID: _id, title, description, photoURL, categories, userInfo, createdAt, updatedAt }
+            const modifiedPost = { postID: _id, title, description, photo, userInfo, updatedAt }
 
             return modifiedPost
         }))
@@ -202,8 +212,7 @@ export const readAllPosts = async (req, res) => {
 
         if (posts.length === 0) {
             return res.json({
-                status: false,
-                message: "No posts found"
+                status: false
             })
         }
 
@@ -211,13 +220,13 @@ export const readAllPosts = async (req, res) => {
 
             const populatedPost = await post.populate('userID')
 
-            const { _id, createdAt, updatedAt, title, description, photoURL, categories, userID } = populatedPost
+            const { _id, updatedAt, title, description, photo, userID } = populatedPost
 
-            const { username, email } = userID
+            const { username } = userID
 
-            const userInfo = { userID: userID._id, username, email }
+            const userInfo = { username }
 
-            const modifiedPost = { postID: _id, title, description, photoURL, categories, userInfo, createdAt, updatedAt }
+            const modifiedPost = { postID: _id, title, description, photo, userInfo, updatedAt }
 
             return modifiedPost
         }))

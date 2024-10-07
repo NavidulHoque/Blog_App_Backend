@@ -18,7 +18,7 @@ const PostSchema = new Schema({
         minLength: [50, "Description must be at least 50 characters long"], 
     },
 
-    photoURL: {
+    photo: {
         type: String,
         required: [true, "Photo is required"],
     },
@@ -31,7 +31,7 @@ const PostSchema = new Schema({
         set: (categories) => {
             // Ensure unique names
             const uniqueCategories = Array.from(new Set(categories.map(category => category.trim())))
-            // Assign unique IDs to each category
+
             return uniqueCategories.map(category => ({
                 name: category
             }))

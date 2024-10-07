@@ -12,7 +12,7 @@ const UserSchema = new Schema({
         trim: true,
         minLength: [5, 'Username must be at least 5 characters long'],
         maxLength: [15, 'Username cannot exceed 15 characters'],
-        match: [/^[a-zA-Z0-9\s]+$/, 'Username can only contain alphanumeric characters (no special characters)'],
+        match: [/^[a-zA-Z0-9]+$/, 'Username can only contain alphanumeric characters (no special characters and space are allowed)'],
     },
 
     email: {
@@ -39,7 +39,6 @@ UserSchema.pre('save', async function() {
 
     const hashedPassword = await bcrypt.hash(this.password, 10)
     this.password = hashedPassword
-    
 })
 
 UserSchema.pre('findOneAndUpdate', async function() {
@@ -47,7 +46,7 @@ UserSchema.pre('findOneAndUpdate', async function() {
     const update = this.getUpdate()
 
     if (update.password) {
-        const hashedPassword = await bcrypt.hash(update.password, 10);
+        const hashedPassword = await bcrypt.hash(update.password, 10)
         update.password = hashedPassword; 
     }
     

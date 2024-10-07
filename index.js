@@ -7,14 +7,21 @@ import authRoute from './routes/auth.js'
 import UserRoute from './routes/user.js'
 import PostRoute from './routes/post.js'
 import CommentRoute from './routes/comment.js'
-import http from 'http'
+import imageRoute from './routes/image.js'
+import { createServer } from 'node:http';
 import { Server } from "socket.io"
 import socketEvents from './socketEvents.js'
+import path from 'path'
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
 
 const app = express()
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename)
 
 // socket connection
-const server = http.createServer(app)
+const server = createServer(app)
 export const io = new Server(server, {
     cors: {
         origin: "http://localhost:5173",
@@ -24,18 +31,25 @@ export const io = new Server(server, {
 
 socketEvents(io)
 
+
 //middlewares
 dotenv.config()
 app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 app.use(cors({
-    origin: "http://localhost:5173", 
-    credentials: true, 
+    origin: "http://localhost:5173",
+    credentials: true,
 }))
+
+//backend allowing the frontend to have access to image folder
+app.use('/images', express.static(path.join(__dirname, "/images")));
 app.use(cookieParser())
 app.use("/auth", authRoute)
 app.use("/user", UserRoute)
 app.use("/post", PostRoute)
 app.use("/comment", CommentRoute)
+app.use("/image", imageRoute)
+
 
 // Database connection function
 async function connectDatabase() {
@@ -47,6 +61,7 @@ async function connectDatabase() {
         process.exit(1)
     }
 }
+
 
 // Start server only if the database connection is successful
 async function startServer() {

@@ -1,3 +1,4 @@
+import { io } from '../index.js';
 import { Comment } from './../models/Comment.js';
 
 export const createComment = async (req, res) => {
@@ -20,11 +21,12 @@ export const createComment = async (req, res) => {
 
         const userInfo = { userID: userID._id, username }
 
-        const commentData = { commentID: _id, comment, userInfo, updatedAt };
+        const commentData = { commentID: _id, comment, userInfo, updatedAt }
+
+        io.emit('newComment', commentData)
 
         return res.json({
-            status: true,
-            commentData
+            status: true
         })
     }
 
@@ -60,11 +62,11 @@ export const updateComment = async (req, res) => {
 
         const updatedCommentData = { commentID: _id, comment, userInfo, updatedAt }
 
-        return res.json({
-            status: true,
-            updatedCommentData
-        })
+        io.emit('updateComment', updatedCommentData)
 
+        return res.json({
+            status: true
+        })
     }
 
     catch (error) {
@@ -82,6 +84,10 @@ export const deleteComment = async (req, res) => {
 
     try {
         await Comment.findByIdAndDelete(id)
+
+        const commentID = id
+
+        io.emit('deleteComment', commentID)
 
         return res.json({
             status: true,
