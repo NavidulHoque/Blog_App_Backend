@@ -35,13 +35,14 @@ const UserSchema = new Schema({
 
 },{timestamps: true})
 
-UserSchema.pre('save', async function() {
+UserSchema.pre('save', async function(next) {
 
     const hashedPassword = await bcrypt.hash(this.password, 10)
     this.password = hashedPassword
+    next()
 })
 
-UserSchema.pre('findOneAndUpdate', async function() {
+UserSchema.pre('findOneAndUpdate', async function(next) {
 
     const update = this.getUpdate()
 
@@ -50,6 +51,7 @@ UserSchema.pre('findOneAndUpdate', async function() {
         update.password = hashedPassword; 
     }
     
+    next()
 })
 
 UserSchema.methods.comparePassword = async function(plainPassword, hashedPassword) {
