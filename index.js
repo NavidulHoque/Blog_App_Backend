@@ -50,11 +50,11 @@ app.use(function (req, res, next) {
     next();
 })
 
-app.use("/", (req, res) => {
-    return res.json({
-        message: "This is home"
-    })
-})
+// app.use("/", (req, res) => {
+//     return res.json({
+//         message: "This is home"
+//     })
+// })
 
 //backend allowing the frontend to have access to image folder
 app.use('/images', express.static(path.join(__dirname, "/images")));
