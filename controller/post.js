@@ -9,7 +9,7 @@ export const createPost = async (req, res) => {
         const newPost = new Post({
             title: req.body.title,
             description: req.body.description,
-            photo: req.body.photo,
+            photoURL: req.body.photoURL,
             categories: req.body.categories,
             userID: req.body.userID
         })
@@ -18,13 +18,13 @@ export const createPost = async (req, res) => {
 
         const populatedPost = await savedPost.populate('userID')
 
-        const { _id, title, description, photo, userID, updatedAt } = populatedPost
+        const { _id, title, description, photoURL, userID, updatedAt } = populatedPost
 
         const { username } = userID
 
         const userInfo = { username }
 
-        const post = { postID: _id, title, description, photo, userInfo, updatedAt }
+        const post = { postID: _id, title, description, photoURL, userInfo, updatedAt }
 
         io.emit('newPost', post)
 
@@ -55,20 +55,20 @@ export const updatePost = async (req, res) => {
 
             title: req.body.title,
             description: req.body.description,
-            photo: req.body.photo,
+            photoURL: req.body.photoURL,
             categories: req.body.categories
 
         }, { new: true })
 
         const populatedPost = await updatedPost.populate('userID')
 
-        const { _id, updatedAt, title, description, photo, categories, userID } = populatedPost
+        const { _id, updatedAt, title, description, photoURL, categories, userID } = populatedPost
 
         const { username } = userID
 
         const userInfo = { userID: userID._id, username }
 
-        const post = { postID: _id, title, description, photo, categories, userInfo, updatedAt }
+        const post = { postID: _id, title, description, photoURL, categories, userInfo, updatedAt }
 
         io.emit('updatePost', post)
 
@@ -103,7 +103,7 @@ export const deletePost = async (req, res) => {
 
         return res.json({
             status: true,
-            photo: deletedPost.photo,
+            photoURL: deletedPost.photoURL,
             message: "Post successfully deleted!"
         })
     }
@@ -127,13 +127,13 @@ export const readPostByID = async (req, res) => {
 
         const populatedPost = await readPost.populate('userID')
 
-        const { _id, updatedAt, title, description, photo, categories, userID } = populatedPost
+        const { _id, updatedAt, title, description, photoURL, categories, userID } = populatedPost
 
         const { username } = userID
 
         const userInfo = { userID: userID._id, username }
 
-        const post = { postID: _id, title, description, photo, categories, userInfo, updatedAt }
+        const post = { postID: _id, title, description, photoURL, categories, userInfo, updatedAt }
 
         return res.json({
             status: true,
@@ -172,13 +172,13 @@ export const readPostsOfLoggedInUser = async (req, res) => {
 
             const populatedPost = await post.populate('userID')
 
-            const { _id, updatedAt, title, description, photo, userID } = populatedPost
+            const { _id, updatedAt, title, description, photoURL, userID } = populatedPost
 
             const { username } = userID
 
             const userInfo = { username }
 
-            const modifiedPost = { postID: _id, title, description, photo, userInfo, updatedAt }
+            const modifiedPost = { postID: _id, title, description, photoURL, userInfo, updatedAt }
 
             return modifiedPost
         }))
@@ -220,13 +220,13 @@ export const readAllPosts = async (req, res) => {
 
             const populatedPost = await post.populate('userID')
 
-            const { _id, updatedAt, title, description, photo, userID } = populatedPost
+            const { _id, updatedAt, title, description, photoURL, userID } = populatedPost
 
             const { username } = userID
 
             const userInfo = { username }
 
-            const modifiedPost = { postID: _id, title, description, photo, userInfo, updatedAt }
+            const modifiedPost = { postID: _id, title, description, photoURL, userInfo, updatedAt }
 
             return modifiedPost
         }))

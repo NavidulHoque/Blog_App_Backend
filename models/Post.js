@@ -18,7 +18,7 @@ const PostSchema = new Schema({
         minLength: [50, "Description must be at least 50 characters long"], 
     },
 
-    photo: {
+    photoURL: {
         type: String,
         required: [true, "Photo is required"],
     },
